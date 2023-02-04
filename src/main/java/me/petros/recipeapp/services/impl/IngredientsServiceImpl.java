@@ -7,30 +7,44 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
 @Service
 public class IngredientsServiceImpl implements IngredientsService {
-    private static int id=0;
-    Map<Integer, Ingredients> allIngredientsMap =new HashMap<>();
-@Override
+    private static int id = 0;
+    Map<Integer, Ingredients> allIngredientsMap = new HashMap<>();
+
+    @Override
     public Ingredients getIngredients(int id) {
-        Map<Integer, Ingredients> allIngredientsInRecipe= allIngredientsMap;
-        for (Integer integer : allIngredientsInRecipe.keySet()) {
-          Ingredients ingredients= allIngredientsInRecipe.get(id);
-                if(ingredients!=null){
-                    return ingredients;
-            }
-        }
-        return null;
+        return allIngredientsMap.get(id);
     }
 
-@Override
+    @Override
     public Ingredients addIngredients(Ingredients ingredients) {
-    for (Ingredients ingredients1 : allIngredientsMap.values()) {
-        if (ingredients1.equals(ingredients)){
-            return ingredients1;
+        for (Ingredients ingredients1 : allIngredientsMap.values()) {
+            if (ingredients1.equals(ingredients)) {
+                return ingredients1;
+            }
         }
+        allIngredientsMap.put(id++, ingredients);
+        return ingredients;
     }
-    allIngredientsMap.put(id++,ingredients);
-    return ingredients;
+    @Override
+    public Ingredients editeIngredient(int id, Ingredients ingredients) {
+        if (allIngredientsMap.containsKey(id))
+            allIngredientsMap.put(id, ingredients);
+        return ingredients;
+    }
+
+    @Override
+    public boolean deleteIngredients(int id) {
+        if (allIngredientsMap.containsKey(id)) {
+            allIngredientsMap.remove(id);
+            return true;
+        }
+        return false;
+    }
+    @Override
+    public Recipe getAllIngredients() {
+        return (Recipe) allIngredientsMap.values();
     }
 }

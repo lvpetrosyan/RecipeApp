@@ -42,4 +42,24 @@ public class RecipeFirstController {
         return ResponseEntity.ok(recipes);
     }
 
+    @GetMapping()
+    public ResponseEntity<Recipe> getAllRecipe() {
+        recipeService.getRecipe();
+        return ResponseEntity.ok().build();
+
+    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Recipe> editRecipe(@PathVariable int id, Recipe recipe){
+        Recipe recipe1= recipeService.editeRecipe(id, recipe);
+        if (recipe==null){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(recipe1);
+    }
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteRecipe(@PathVariable int id){
+       if (recipeService.deleteRecipe(id)){
+       return ResponseEntity.ok().build();}
+       return ResponseEntity.notFound().build();
+    }
 }
