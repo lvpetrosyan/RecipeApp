@@ -1,13 +1,13 @@
 package me.petros.recipeapp.services;
 
-import me.petros.recipeapp.model.Ingredients;
+import me.petros.recipeapp.model.Ingredient;
 import me.petros.recipeapp.model.Recipe;
 
 public interface IngredientsService {
-   Object addIngredients (Ingredients ingredients);
-    Ingredients getIngredients(int a);
+   Object addIngredients (Ingredient ingredient);
+    Ingredient getIngredients(int a);
 
-    Ingredients editeIngredient(int id, Ingredients ingredients);
+    Ingredient editeIngredient(int id, Ingredient ingredient);
 
     boolean deleteIngredients(int id);
 
