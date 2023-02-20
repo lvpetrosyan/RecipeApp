@@ -45,8 +45,8 @@ public class IngredientsFilesServiceImpl implements FilesService {
     public boolean cleanDataFile() {
         try {
             Path path = Path.of(dataFilePathIngredient, dataFileNameIngredient);
-            Files.createFile(path);
             Files.deleteIfExists(path);
+            Files.createFile(path);
             return true;
         } catch (IOException e) {
             e.printStackTrace();

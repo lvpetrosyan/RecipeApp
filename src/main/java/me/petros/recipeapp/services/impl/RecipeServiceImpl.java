@@ -9,6 +9,7 @@ import me.petros.recipeapp.services.FilesService;
 import me.petros.recipeapp.services.RecipeService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import javax.annotation.PostConstruct;
 import java.util.*;
@@ -26,8 +27,12 @@ public class RecipeServiceImpl implements RecipeService {
 
     @Override
     public Recipe getRecipe(int id) {
+        if (!allRecipeMap.containsKey(id)) {
+            throw new NotFoundException("Рецепт с таким id не найден");
+        }
         return allRecipeMap.get(id);
     }
+
     @Override
     public Recipe getRecipe() {
         return (Recipe) allRecipeMap.values();
@@ -36,25 +41,31 @@ public class RecipeServiceImpl implements RecipeService {
     @Override
     public int addRecipe(Recipe recipe) {
         allRecipeMap.put(id++, recipe);
+        saveFileRecipe();
         return id;
     }
 
     @Override
     public Recipe editeRecipe(int id, Recipe recipe) {
-        if (allRecipeMap.containsKey(id))
-            allRecipeMap.put(id, recipe);
+        if (!allRecipeMap.containsKey(id)) {
+            throw new NotFoundException("Рецепт с таким id не найден");
+        }
+        allRecipeMap.put(id, recipe);
+        saveFileRecipe();
         return recipe;
     }
 
     @Override
     public boolean deleteRecipe(int id) {
-        if (allRecipeMap.containsKey(id)) {
-            allRecipeMap.remove(id);
-            return true;
+        if (!allRecipeMap.containsKey(id)) {
+            throw new NotFoundException("Рецепт с таким id не найден");
         }
-        return false;
+        allRecipeMap.remove(id);
+        saveFileRecipe();
+        return true;
     }
-    private void saveFileRecipe(){
+
+    private void saveFileRecipe() {
         try {
             String json = new ObjectMapper().writeValueAsString(allRecipeMap);
             filesService.saveToFile(json);
@@ -62,17 +73,19 @@ public class RecipeServiceImpl implements RecipeService {
             throw new FileException("Не удалось сохранить файл");
         }
     }
-    private void readFromFile(){
+
+    private void readFromFile() {
         try {
-            String json= filesService.readFromFile();
-            allRecipeMap= new ObjectMapper().readValue(json, new TypeReference<HashMap<Integer, Recipe>>() {
+            String json = filesService.readFromFile();
+            allRecipeMap = new ObjectMapper().readValue(json, new TypeReference<HashMap<Integer, Recipe>>() {
             });
         } catch (JsonProcessingException e) {
             throw new FileException("Не удалось прочитать файл");
         }
     }
+
     @PostConstruct
-    private void initRecipe(){
+    private void initRecipe() {
         readFromFile();
     }
 }

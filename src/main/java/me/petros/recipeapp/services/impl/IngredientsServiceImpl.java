@@ -10,6 +10,7 @@ import me.petros.recipeapp.services.FilesService;
 import me.petros.recipeapp.services.IngredientsService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import org.webjars.NotFoundException;
 
 import javax.annotation.PostConstruct;
 import java.util.HashMap;
@@ -28,6 +29,9 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @Override
     public Ingredient getIngredients(int id) {
+        if (!allIngredientsMap.containsKey(id)) {
+            throw new NotFoundException("Ингридиент с таким id не найден");
+        }
         return allIngredientsMap.get(id);
     }
 
@@ -42,28 +46,33 @@ public class IngredientsServiceImpl implements IngredientsService {
         saveToFile();
         return ingredient;
     }
+
     @Override
     public Ingredient editeIngredient(int id, Ingredient ingredient) {
-        if (allIngredientsMap.containsKey(id))
-            allIngredientsMap.put(id, ingredient);
+        if (!allIngredientsMap.containsKey(id)) {
+            throw new NotFoundException("Ингридиент с таким id не найден");
+        }
+        allIngredientsMap.put(id, ingredient);
         saveToFile();
         return ingredient;
     }
 
     @Override
     public boolean deleteIngredients(int id) {
-        if (allIngredientsMap.containsKey(id)) {
-            allIngredientsMap.remove(id);
-            saveToFile();
-            return true;
+        if (!allIngredientsMap.containsKey(id)) {
+            throw new NotFoundException("Ингридиент с таким id не найден");
         }
-        return false;
+        allIngredientsMap.remove(id);
+        saveToFile();
+        return true;
     }
+
     @Override
     public Recipe getAllIngredients() {
         return (Recipe) allIngredientsMap.values();
     }
-    private void saveToFile(){
+
+    private void saveToFile() {
         try {
             String json = new ObjectMapper().writeValueAsString(allIngredientsMap);
             filesService.saveToFile(json);
@@ -71,16 +80,19 @@ public class IngredientsServiceImpl implements IngredientsService {
             throw new FileException("Файл не получилось сохранить");
         }
     }
-    private void readFromFile(){
+
+    private void readFromFile() {
         try {
-            String json= filesService.readFromFile();
-            allIngredientsMap= new ObjectMapper().readValue(json, new TypeReference<HashMap<Integer, Ingredient>>(){});
+            String json = filesService.readFromFile();
+            allIngredientsMap = new ObjectMapper().readValue(json, new TypeReference<HashMap<Integer, Ingredient>>() {
+            });
         } catch (JsonProcessingException e) {
             throw new FileException("Файл не получилось прочитать");
         }
     }
+
     @PostConstruct
-    private void initIngredients(){
+    private void initIngredients() {
         readFromFile();
     }
 }
