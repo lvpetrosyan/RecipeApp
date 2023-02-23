@@ -65,9 +65,18 @@ public class RecipeServiceImpl implements RecipeService {
         return true;
     }
 
+    @Override
+    public Map<Integer, Recipe> getRecipeMap() {
+        return allRecipeMap;
+    }
+
+
     private void saveFileRecipe() {
         try {
-            String json = new ObjectMapper().writeValueAsString(allRecipeMap);
+            Map <String, Object> map= new HashMap<>();
+            map.put("lastid", id);
+            map.put("recipe", allRecipeMap);
+            String json = new ObjectMapper().writeValueAsString(map);
             filesService.saveToFile(json);
         } catch (JsonProcessingException e) {
             throw new FileException("Не удалось сохранить файл");
@@ -86,6 +95,10 @@ public class RecipeServiceImpl implements RecipeService {
 
     @PostConstruct
     private void initRecipe() {
-        readFromFile();
+        try{
+        readFromFile();}
+        catch (Exception e){
+            e.printStackTrace();
+        }
     }
 }

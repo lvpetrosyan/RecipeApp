@@ -72,6 +72,11 @@ public class IngredientsServiceImpl implements IngredientsService {
         return (Recipe) allIngredientsMap.values();
     }
 
+    @Override
+    public Map<Integer, Ingredient> getIngredientMap() {
+        return allIngredientsMap;
+    }
+
     private void saveToFile() {
         try {
             String json = new ObjectMapper().writeValueAsString(allIngredientsMap);
@@ -93,6 +98,10 @@ public class IngredientsServiceImpl implements IngredientsService {
 
     @PostConstruct
     private void initIngredients() {
-        readFromFile();
+        try {
+            readFromFile();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

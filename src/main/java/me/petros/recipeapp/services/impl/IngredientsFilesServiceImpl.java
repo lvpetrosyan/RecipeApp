@@ -1,6 +1,8 @@
 package me.petros.recipeapp.services.impl;
 
 import me.petros.recipeapp.exception.FileException;
+import me.petros.recipeapp.model.Ingredient;
+import me.petros.recipeapp.model.Recipe;
 import me.petros.recipeapp.services.FilesService;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
+import java.util.Map;
 
 @Service("ingredientFileService")
 
@@ -80,4 +84,35 @@ public class IngredientsFilesServiceImpl implements FilesService {
             throw new FileException("не удалось загрузить файл");
         }
     }
+
+    @Override
+    public InputStreamResource exportFileRecipeTxt(Map<Integer, Recipe> allRecipeMap) throws IOException {
+        return null;
+    }
+
+    private Path createAllIngredientFileForTXT(String suf) throws IOException {
+        if (Files.exists(Path.of(dataFilePathIngredient,suf))){
+            Files.delete(Path.of(dataFilePathIngredient,suf));
+            Files.createFile(Path.of(dataFilePathIngredient,suf));
+            return Path.of(dataFilePathIngredient,suf);
+        }
+        return Files.createFile(Path.of(dataFilePathIngredient,suf));
+    }
+    @Override
+    public InputStreamResource exportFileIngredientTxt(Map<Integer, Ingredient> allIngredientsMap) throws IOException {
+        Path path= createAllIngredientFileForTXT("allIngredient");
+        for (Ingredient ingredient : allIngredientsMap.values()) {
+            try (BufferedWriter writer=Files.newBufferedWriter(path, StandardOpenOption.APPEND)){
+                writer.append("Название ингридиента: ");
+                writer.append(ingredient.getNameIngredient());
+                writer.append("\n Вес: ");
+                writer.append(String.valueOf(ingredient.getWeightIngredient()));
+                writer.append(" мера ");
+                writer.append(String.valueOf(ingredient.getMeasureUnit()));
+            }
+        }
+        File file= path.toFile();
+        return new InputStreamResource(new FileInputStream(file));
+    }
+
 }
